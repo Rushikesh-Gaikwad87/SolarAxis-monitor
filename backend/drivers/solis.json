@@ -1,0 +1,20 @@
+{
+  "brand": "Solis",
+  "model": "S6 Series",
+  "protocol": "tcp",
+  "ip_port": 502,
+  "slave_id": 1,
+  "poll_interval": 5,
+  "registers": {
+    "pv_voltage":   {"addr": 3021, "type": "uint16", "scale": 0.1},
+    "pv_current":   {"addr": 3022, "type": "uint16", "scale": 0.1},
+    "pv_power":     {"addr": 3005, "type": "uint32", "scale": 1},
+    "grid_voltage": {"addr": 3035, "type": "uint16", "scale": 0.1},
+    "grid_current": {"addr": 3036, "type": "uint16", "scale": 0.1},
+    "frequency":    {"addr": 3042, "type": "uint16", "scale": 0.01},
+    "today_energy": {"addr": 3015, "type": "uint16", "scale": 0.1},
+    "total_energy": {"addr": 3008, "type": "uint32", "scale": 1},
+    "temperature":  {"addr": 3041, "type": "int16",  "scale": 0.1},
+    "status":       {"addr": 3071, "type": "uint16", "scale": 1}
+  }
+}

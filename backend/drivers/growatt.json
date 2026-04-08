@@ -1,0 +1,20 @@
+{
+  "brand": "Growatt",
+  "model": "MIN",
+  "protocol": "tcp",
+  "ip_port": 502,
+  "slave_id": 1,
+  "poll_interval": 5,
+  "registers": {
+    "pv_voltage":   {"addr": 30001, "type": "uint16", "scale": 0.1},
+    "pv_current":   {"addr": 30002, "type": "uint16", "scale": 0.1},
+    "pv_power":     {"addr": 30003, "type": "uint32", "scale": 1},
+    "grid_voltage": {"addr": 30007, "type": "uint16", "scale": 0.1},
+    "grid_current": {"addr": 30008, "type": "uint16", "scale": 0.1},
+    "frequency":    {"addr": 30009, "type": "uint16", "scale": 0.01},
+    "today_energy": {"addr": 30013, "type": "uint16", "scale": 0.1},
+    "total_energy": {"addr": 30015, "type": "uint32", "scale": 0.1},
+    "temperature":  {"addr": 30017, "type": "int16",  "scale": 0.1},
+    "status":       {"addr": 30025, "type": "uint16", "scale": 1}
+  }
+}

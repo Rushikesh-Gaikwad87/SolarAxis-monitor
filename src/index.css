@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #3b82f6;
+  --bg-base: #020617;
+  --bg-surface: #0f172a;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 5px rgba(178, 202, 240, 0.2);
+  }
+}
+
+.glow-primary {
+  animation: pulse-glow 3s infinite;
+}
+
+/* Modbus Form Input */
+.input-dark {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #1e293b;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #f1f5f9;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.input-dark:focus {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.input-dark::placeholder {
+  color: #475569;
+}
+
+/* ── Live Ticker Animation ─────────────────────────────────────────────── */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 28s linear infinite;
+  display: inline-flex;
+}
+
+/* ── Smooth theme color transition ──────────────────────────────────────── */
+* {
+  transition: background-color 0.35s ease, border-color 0.25s ease, color 0.2s ease;
+}
+
+button,
+a,
+input,
+select {
+  transition: all 0.18s ease;
+}
+
+/* ── iOS safe area for bottom nav ──────────────────────────────────────── */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Compact scrollbars inside panels ──────────────────────────────────── */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 8px;
+}
