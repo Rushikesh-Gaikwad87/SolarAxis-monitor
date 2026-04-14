@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Sun, Wifi, Users, AlertTriangle, Settings,
   LogOut, Monitor, Menu, X, Bell, Search, Plus, ChevronRight,
-  ShieldCheck, Battery, Mail, Lock, Palette, Keyboard, Maximize, Minimize, Eye, EyeOff
+  ShieldCheck, Battery, Mail, Lock, Palette, Keyboard, Maximize, Minimize, Eye, EyeOff,
+  CreditCard
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -17,6 +18,7 @@ import AlertsPage            from './components/AlertsPage';
 import SystemConfigPage      from './components/SystemConfigPage';
 import CustomerPortal        from './components/CustomerPortal';
 import AdminPortal           from './components/AdminPortal';
+import PaymentPage           from './components/PaymentPage';
 
 // New feature overlays
 import CommandPalette        from './components/CommandPalette';
@@ -44,9 +46,10 @@ const NAV = [
   { id:'inverters', label:'Inverter Connect', icon:Wifi            },
   { id:'customers', label:'Customers',        icon:Users           },
   { id:'alerts',    label:'Smart Alerts',     icon:AlertTriangle, badge: ALERTS.filter(a=>!a.resolved).length },
+  { id:'billing',   label:'Plans & Billing',  icon:CreditCard      },
   { id:'settings',  label:'System Config',    icon:Settings        },
 ];
-const PAGE_TITLES = { dashboard:'Performance Overview', plants:'Solar Plants', inverters:'Inverter Connect', customers:'Customers', alerts:'Smart Alerts', settings:'System Config' };
+const PAGE_TITLES = { dashboard:'Performance Overview', plants:'Solar Plants', inverters:'Inverter Connect', customers:'Customers', alerts:'Smart Alerts', billing:'Plans & Billing', settings:'System Config' };
 
 // ── toast helper hook ────────────────────────────────────────────────────────
 function useToasts() {
@@ -276,7 +279,8 @@ function MainApp({ onLogout }) {
         case '3': setTab('inverters'); break;
         case '4': setTab('customers'); break;
         case '5': setTab('alerts'); break;
-        case '6': setTab('settings'); break;
+        case '6': setTab('billing'); break;
+        case '7': setTab('settings'); break;
         default: break;
       }
     };
@@ -292,6 +296,7 @@ function MainApp({ onLogout }) {
     inverters: <ModbusInverterConnect />,
     customers: <CustomersPage />,
     alerts:    <AlertsPage />,
+    billing:   <PaymentPage />,
     settings:  <SystemConfigPage />,
   };
 

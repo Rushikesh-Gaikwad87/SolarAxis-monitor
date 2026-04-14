@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users, Mail, Phone, MapPin, Plus, Search, Building2, Leaf,
-  DollarSign, Sun, ChevronRight, Star, MoreVertical, X, CheckCircle
+  DollarSign, Sun, ChevronRight, Star, MoreVertical, X, CheckCircle,
+  MessageCircle
 } from 'lucide-react';
 import { CUSTOMERS, PLANTS } from '../data/mockData';
+import BulkWAMessenger from './BulkWAMessenger';
 import { clsx } from 'clsx'; import { twMerge } from 'tailwind-merge';
 function cn(...i) { return twMerge(clsx(i)); }
 
@@ -71,6 +73,7 @@ function CustomerRow({ cust, i }) {
 export default function CustomersPage() {
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [showWA, setShowWA] = useState(false);
 
   const filtered = CUSTOMERS.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -87,15 +90,22 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-100">Customers</h1>
           <p className="text-xs text-slate-500 mt-0.5">{CUSTOMERS.length} registered customers</p>
         </div>
-        <button onClick={()=>setShowAdd(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95">
-          <Plus className="w-4 h-4"/> Add Customer
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Bulk WhatsApp */}
+          <button onClick={() => setShowWA(true)}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95 shadow-lg shadow-emerald-600/20">
+            <MessageCircle className="w-4 h-4"/> Bulk WhatsApp
+          </button>
+          <button onClick={()=>setShowAdd(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95 shadow-lg shadow-blue-600/20">
+            <Plus className="w-4 h-4"/> Add Customer
+          </button>
+        </div>
       </div>
 
       {/* Stats Row */}
@@ -183,6 +193,9 @@ export default function CustomersPage() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Bulk WhatsApp Messenger */}
+      <BulkWAMessenger open={showWA} onClose={() => setShowWA(false)} />
     </div>
   );
 }

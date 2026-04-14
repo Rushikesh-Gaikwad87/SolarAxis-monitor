@@ -5,8 +5,10 @@ import {
   FileText, Download, Bell, Star, Lock, ChevronRight, X,
   BarChart2, Wrench, CloudRain, Wind, Thermometer, Droplets,
   Shield, Wifi, MessageSquare, BrainCircuit, LogOut, Sparkles,
-  ArrowUpRight, Battery, Clock, Info, Phone, PhoneCall, AlertOctagon
+  ArrowUpRight, Battery, Clock, Info, Phone, PhoneCall, AlertOctagon,
+  Palette
 } from 'lucide-react';
+import ThemeSwitcher, { THEMES } from './ThemeSwitcher';
 
 // ── tiny helpers ──────────────────────────────────────────────────────────────
 function cn(...classes) { return classes.filter(Boolean).join(' '); }
@@ -467,6 +469,19 @@ export default function CustomerPortal({ onLogout }) {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [started, setStarted] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
+  const [showTheme, setShowTheme] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('solaraxis-customer-theme');
+      return saved ? THEMES.find(t => t.id === saved) || THEMES[0] : THEMES[0];
+    } catch { return THEMES[0]; }
+  });
+
+  const applyTheme = (t) => {
+    setTheme(t);
+    try { localStorage.setItem('solaraxis-customer-theme', t.id); } catch {}
+  };
+
   const todaySavings = useCounter(1248, 1800, started);
   const co2 = useCounter(17, 1800, started);
 
@@ -491,7 +506,7 @@ export default function CustomerPortal({ onLogout }) {
   const SECTIONS = ['overview', 'energy', 'tickets', 'documents'];
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20">
+    <div className="min-h-screen bg-[#020617] text-slate-100 pb-20" style={{ filter: theme.filter || undefined }}>
       {/* ── TOP NAV ───────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 bg-[#020617]/90 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -505,6 +520,12 @@ export default function CustomerPortal({ onLogout }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowTheme(true)}
+              className="p-2 rounded-xl hover:bg-slate-800 text-slate-500 hover:text-slate-300 transition-colors"
+              title="Change Theme">
+              <Palette className="w-4 h-4" />
+            </button>
             <button onClick={() => setUpgradeOpen(true)}
               className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg shadow-blue-600/20 hover:opacity-90 transition-opacity">
               <Sparkles className="w-3.5 h-3.5" /> Upgrade Plan
@@ -775,6 +796,14 @@ export default function CustomerPortal({ onLogout }) {
 
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
       <EmergencyContact />
+
+      {/* Theme Switcher Panel */}
+      <ThemeSwitcher
+        open={showTheme}
+        onClose={() => setShowTheme(false)}
+        currentTheme={theme}
+        onApply={applyTheme}
+      />
     </div>
   );
 }

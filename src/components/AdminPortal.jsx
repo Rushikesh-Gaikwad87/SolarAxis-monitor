@@ -9,9 +9,10 @@ import {
   LogOut, ChevronRight, ChevronDown, ChevronUp, X, Search, Plus,
   ShieldCheck, Monitor, Activity, TrendingUp, Mail, Phone, MapPin,
   CheckCircle, XCircle, Clock, BarChart3, Zap, Leaf, RefreshCw,
-  Eye, Download, Ban, Star, FileText, Bell, Settings
+  Eye, Download, Ban, Star, FileText, Bell, Settings, Palette
 } from 'lucide-react';
 import { VENDORS, CUSTOMERS, PLANTS, ALERTS, MONTHLY_DATA } from '../data/mockData';
+import ThemeSwitcher, { THEMES } from './ThemeSwitcher';
 import { clsx } from 'clsx'; import { twMerge } from 'tailwind-merge';
 function cn(...i) { return twMerge(clsx(i)); }
 
@@ -624,6 +625,18 @@ const ADMIN_NAV = [
 // ── MAIN ADMIN PORTAL ─────────────────────────────────────────────────────────
 export default function AdminPortal({ onLogout }) {
   const [tab, setTab] = useState('overview');
+  const [showTheme, setShowTheme] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('solaraxis-admin-theme');
+      return saved ? THEMES.find(t => t.id === saved) || THEMES[0] : THEMES[0];
+    } catch { return THEMES[0]; }
+  });
+
+  const applyTheme = (t) => {
+    setTheme(t);
+    try { localStorage.setItem('solaraxis-admin-theme', t.id); } catch {}
+  };
 
   const content = {
     overview:   <OverviewTab/>,
@@ -637,7 +650,7 @@ export default function AdminPortal({ onLogout }) {
   const PAGE_TITLES = { overview:'Platform Overview', vendors:'Vendor Management', customers:'All Customers', plants:'All Plants', financials:'Financials', audit:'Audit Log' };
 
   return (
-    <div className="flex h-screen text-slate-100 overflow-hidden" style={{background:'#020617'}}>
+    <div className="flex h-screen text-slate-100 overflow-hidden" style={{background:'#020617', filter: theme.filter || undefined}}>
       {/* Sidebar */}
       <div className="hidden lg:flex flex-col w-60 flex-shrink-0 bg-[#070d1e] border-r border-slate-800/80 p-5">
         <div className="flex items-center gap-3 mb-8">
@@ -703,6 +716,12 @@ export default function AdminPortal({ onLogout }) {
             <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-800 text-slate-400 text-xs px-3 py-1.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>Last sync: 1 min ago
             </div>
+            {/* Theme Switcher button */}
+            <button onClick={() => setShowTheme(true)}
+              className="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-600 flex items-center justify-center transition-colors"
+              title="Change Theme">
+              <Palette className="w-4 h-4 text-slate-400" />
+            </button>
           </div>
         </header>
 
@@ -714,6 +733,14 @@ export default function AdminPortal({ onLogout }) {
           </AnimatePresence>
         </main>
       </div>
+
+      {/* Theme Switcher Panel */}
+      <ThemeSwitcher
+        open={showTheme}
+        onClose={() => setShowTheme(false)}
+        currentTheme={theme}
+        onApply={applyTheme}
+      />
     </div>
   );
 }

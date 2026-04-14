@@ -5,7 +5,8 @@ import {
   CheckCircle, XCircle, RefreshCw, Plus, Trash2, Settings,
   Clock, BarChart3, ChevronDown, ChevronUp, Radio, Signal,
   Database, Server, Shield, TrendingUp, TrendingDown, Minus,
-  Search, Filter, Eye, Power, ChevronsRight
+  Search, Filter, Eye, Power, ChevronsRight, QrCode, Smartphone,
+  Router, ScanLine, Wifi as WifiIcon, Lock
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -354,10 +355,184 @@ function InverterCard({ inverter, onRefresh, onDelete }) {
   );
 }
 
+// ── QR ROUTER SCAN MODAL ─────────────────────────────────────────────────────
+const MOCK_ROUTERS = [
+  { brand: 'Sungrow', model: 'SG-WiFi-Stick', ip: '192.168.1.50', port: 502, slaveId: 1, ssid: 'SolarWiFi_SG_2409', mac: 'A4:C3:F0:12:34:56', firmware: 'v2.1.4' },
+  { brand: 'Growatt', model: 'ShineWiFi-X',   ip: '10.0.0.10',    port: 502, slaveId: 1, ssid: 'Growatt_SHINE_4801', mac: 'B8:27:EB:45:67:89', firmware: 'v1.3.2' },
+  { brand: 'Huawei',  model: 'SmartDongle2000', ip: '192.168.200.1', port: 6607, slaveId: 0, ssid: 'Huawei_Solar_7702', mac: 'DC:A6:32:78:9A:BC', firmware: 'v3.0.1' },
+];
+
+function QRRouterScanModal({ open, onClose, onConnect }) {
+  const [phase, setPhase] = useState('scan'); // scan | detected | connecting | done
+  const [detected, setDetected] = useState(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setPhase('scan');
+    setDetected(null);
+    // After 2.5s simulate successful QR scan
+    const t = setTimeout(() => {
+      const router = MOCK_ROUTERS[Math.floor(Math.random() * MOCK_ROUTERS.length)];
+      setDetected(router);
+      setPhase('detected');
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [open]);
+
+  const handleConnect = async () => {
+    setPhase('connecting');
+    await new Promise(r => setTimeout(r, 1800));
+    setPhase('done');
+    onConnect(detected);
+    setTimeout(() => { onClose(); setPhase('scan'); }, 1200);
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 pointer-events-none"
+          >
+            <div className="bg-[#0b1628] border border-slate-800 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl pointer-events-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
+                    <QrCode className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-slate-100 text-sm">Router QR Connect</h2>
+                    <p className="text-[10px] text-slate-500">Scan the QR on your WiFi dongle</p>
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 text-slate-500 hover:text-white transition-colors">
+                  <XCircle className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5">
+                <AnimatePresence mode="wait">
+
+                  {/* Scanning phase */}
+                  {phase === 'scan' && (
+                    <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="flex flex-col items-center gap-5">
+                      {/* Simulated camera viewfinder */}
+                      <div className="relative w-52 h-52 rounded-2xl overflow-hidden bg-[#030812] border-2 border-blue-500/30">
+                        {/* Corner markers */}
+                        {[['top-2 left-2','border-t-2 border-l-2'],['top-2 right-2','border-t-2 border-r-2'],
+                          ['bottom-2 left-2','border-b-2 border-l-2'],['bottom-2 right-2','border-b-2 border-r-2']
+                        ].map(([pos, bord], i) => (
+                          <div key={i} className={`absolute ${pos} w-6 h-6 ${bord} border-blue-400 rounded-sm`} />
+                        ))}
+                        {/* Simulated QR pattern */}
+                        <div className="absolute inset-6 grid grid-cols-7 grid-rows-7 gap-0.5 opacity-20">
+                          {Array.from({length: 49}).map((_,i) => (
+                            <div key={i} className={`rounded-[1px] ${Math.random()>0.5?'bg-slate-300':'bg-transparent'}`} />
+                          ))}
+                        </div>
+                        {/* Scanning line */}
+                        <motion.div
+                          className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_0_8px_#60a5fa]"
+                          animate={{ y: [10, 190, 10] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                        />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-slate-300">Scanning for QR code…</p>
+                        <p className="text-xs text-slate-500 mt-1">Point camera at the QR sticker on your inverter dongle</p>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-blue-400 bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-2">
+                        <Signal className="w-3.5 h-3.5 animate-pulse" />
+                        Searching for device signal…
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Detected phase */}
+                  {phase === 'detected' && detected && (
+                    <motion.div key="detected" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="space-y-4">
+                      <div className="flex items-center gap-3 bg-emerald-500/8 border border-emerald-500/20 rounded-2xl p-4">
+                        <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                        <div>
+                          <p className="text-emerald-400 font-bold text-sm">QR Code Detected!</p>
+                          <p className="text-slate-500 text-xs">{detected.ssid}</p>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-2">
+                        {[
+                          ['Brand',    detected.brand],
+                          ['Model',    detected.model],
+                          ['IP Address', detected.ip],
+                          ['Port',     detected.port],
+                          ['Slave ID', detected.slaveId],
+                          ['MAC',      detected.mac],
+                          ['Firmware', detected.firmware],
+                        ].map(([k, v]) => (
+                          <div key={k} className="flex items-center justify-between text-xs">
+                            <span className="text-slate-500 font-medium">{k}</span>
+                            <span className="font-mono text-slate-200 font-semibold">{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={handleConnect}
+                        className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20">
+                        <Wifi className="w-4 h-4" /> Confirm &amp; Connect Router
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {/* Connecting */}
+                  {phase === 'connecting' && (
+                    <motion.div key="connecting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="flex flex-col items-center gap-4 py-6">
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-full border-4 border-blue-500/20 border-t-blue-500 animate-spin" />
+                        <Router className="w-7 h-7 text-blue-400 absolute inset-0 m-auto" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-slate-200">Connecting to Router…</p>
+                        <p className="text-xs text-slate-500 mt-1">Establishing Modbus TCP handshake via {detected?.ip}</p>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Done */}
+                  {phase === 'done' && (
+                    <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                      className="flex flex-col items-center gap-3 py-6">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                        <CheckCircle className="w-8 h-8 text-emerald-400" />
+                      </div>
+                      <p className="text-emerald-400 font-bold">Router Connected!</p>
+                      <p className="text-xs text-slate-500">{detected?.model} added to inverter list</p>
+                    </motion.div>
+                  )}
+
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // ── MAIN MODULE ───────────────────────────────────────────────────────────────
 export default function ModbusInverterConnect() {
   const [step, setStep] = useState('list'); // list | addBrand | addForm
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const [showQR, setShowQR] = useState(false);
   const [inverterList, setInverterList] = useState([
     // Demo inverter
     {
@@ -446,13 +621,21 @@ export default function ModbusInverterConnect() {
             Connect inverters directly via <span className="text-blue-400 font-mono">Modbus TCP</span> — no cloud API needed.
           </p>
         </div>
-        {step === 'list' && (
+      {step === 'list' && (
+          <div className="flex items-center gap-2">
           <button
             onClick={() => { setStep('addBrand'); setTestResult(null); }}
             className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95"
           >
             <Plus className="w-4 h-4" /> Add Inverter
           </button>
+          <button
+            onClick={() => setShowQR(true)}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-2xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
+          >
+            <QrCode className="w-4 h-4" /> Connect via QR
+          </button>
+          </div>
         )}
         {step !== 'list' && (
           <button
@@ -710,6 +893,32 @@ export default function ModbusInverterConnect() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* QR Router Scan Modal */}
+      <QRRouterScanModal
+        open={showQR}
+        onClose={() => setShowQR(false)}
+        onConnect={(router) => {
+          const newInverter = {
+            id: Date.now(),
+            brandId: (router.brand || 'sungrow').toLowerCase(),
+            model: router.model,
+            serialNo: router.mac.replace(/:/g,'').slice(-8),
+            ip: router.ip,
+            port: router.port,
+            slaveId: router.slaveId,
+            capacity: '5',
+            status: 'Running',
+            telemetry: {
+              power_kw: 3.8, ac_voltage: 228.4, dc_voltage: 372.1, dc_current: 10.2,
+              frequency: 50.02, temperature: 39.6, daily_gen: 18.2, total_gen: 4820,
+              status: 'Running', fault_code: null, last_update: new Date().toLocaleTimeString('en-IN'),
+            },
+            nextSync: 30,
+          };
+          setInverterList(p => [newInverter, ...p]);
+        }}
+      />
     </div>
   );
 }
