@@ -9,7 +9,7 @@ import {
   LogOut, ChevronRight, ChevronDown, ChevronUp, X, Search, Plus,
   ShieldCheck, Monitor, Activity, TrendingUp, Mail, Phone, MapPin,
   CheckCircle, XCircle, Clock, BarChart3, Zap, Leaf, RefreshCw,
-  Eye, Download, Ban, Star, FileText, Bell, Settings, Palette
+  Eye, Download, Ban, Star, FileText, Bell, Settings, Palette, Trash2
 } from 'lucide-react';
 import { VENDORS, CUSTOMERS, PLANTS, ALERTS, MONTHLY_DATA } from '../data/mockData';
 import ThemeSwitcher, { THEMES } from './ThemeSwitcher';
@@ -296,9 +296,6 @@ function VendorDetail({ vendor, onBack }) {
                       <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{width:`${p.performance}%`,background:p.performance>85?'#10b981':p.performance>50?'#f59e0b':'#ef4444'}}/>
                       </div>
-                      <span className="text-slate-400">{p.performance}%</span>
-                    </div>
-                  </td>
                   <td className="px-4 py-2.5">
                     <span className={cn('px-2 py-0.5 rounded-full font-bold',
                       p.status==='online'?'bg-emerald-500/10 text-emerald-400':p.status==='offline'?'bg-slate-700 text-slate-400':'bg-red-500/10 text-red-400')}>
@@ -315,85 +312,316 @@ function VendorDetail({ vendor, onBack }) {
   );
 }
 
+// ── VENDOR STORAGE & HELPERS ─────────────────────────────────────────────────
+const VENDOR_KEY    = 'solaraxis-vendors';
+const VENDOR_COLORS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#84cc16'];
+
+function loadVendors() {
+  try { const r = localStorage.getItem(VENDOR_KEY); if(r) return JSON.parse(r); } catch {}
+  return VENDORS;
+}
+function saveVendors(list) {
+  try { localStorage.setItem(VENDOR_KEY, JSON.stringify(list)); } catch {}
+}
+
+// ── VENDOR FORM MODAL ────────────────────────────────────────────────────────
+const PLANS_LIST   = ['Standard','Premium','Enterprise','Trial'];
+const STATUS_LIST  = ['active','trial','suspended'];
+const STATES_LIST  = ['MH','DL','KA','TN','GJ','RJ','UP','WB','MP','AP','TS','PB','HR','KL','OR','BR'];
+
+function VendorFormModal({ initial, onClose, onSave }) {
+  const isEdit = !!initial?.id;
+  const [form, setForm] = useState(initial || {
+    name:'', owner:'', email:'', phone:'',
+    city:'', state:'MH', plan:'Standard', status:'active',
+    monthlyRevenue:'', capacity:'',
+  });
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  const set = (k,v) => { setForm(p=>({...p,[k]:v})); setErrors(p=>({...p,[k]:''})); };
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim())  e.name  = 'Company name is required';
+    if (!form.owner.trim()) e.owner = 'Owner name is required';
+    if (!form.email.trim() || !form.email.includes('@')) e.email = 'Valid email required';
+    if (!form.city.trim())  e.city  = 'City is required';
+    return e;
+  };
+
+  const handleSave = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setSaving(true);
+    await new Promise(r=>setTimeout(r,600));
+    const words = form.name.trim().split(' ').filter(Boolean);
+    const initials = words.length>=2 ? (words[0][0]+words[1][0]).toUpperCase() : words[0].slice(0,2).toUpperCase();
+    const randomColor = VENDOR_COLORS[Math.floor(Math.random()*VENDOR_COLORS.length)];
+    const vendor = {
+      ...form,
+      id: initial?.id || `v${Date.now()}`,
+      initials,
+      color: initial?.color || randomColor,
+      customers: initial?.customers || 0,
+      plants: initial?.plants || 0,
+      capacity: parseFloat(form.capacity)||0,
+      monthlyRevenue: parseFloat(form.monthlyRevenue)||0,
+      totalRevenue: initial?.totalRevenue || 0,
+      joinDate: initial?.joinDate || new Date().toISOString().split('T')[0],
+    };
+    setSaving(false);
+    onSave(vendor);
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+        onClick={onClose}>
+        <motion.div initial={{scale:0.92,y:20}} animate={{scale:1,y:0}} exit={{scale:0.92,y:20}}
+          className="bg-[#0b1628] border border-slate-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+          onClick={e=>e.stopPropagation()}>
+          <div className="flex items-center justify-between p-5 border-b border-slate-800 sticky top-0 bg-[#0b1628] z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-blue-400"/>
+              </div>
+              <div>
+                <h2 className="font-bold text-slate-100">{isEdit?'Edit Vendor':'Add New Vendor'}</h2>
+                <p className="text-[11px] text-slate-500">{isEdit?'Update vendor info':'Register a vendor on the platform'}</p>
+              </div>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 text-slate-500 hover:text-white transition-colors">
+              <X className="w-4 h-4"/>
+            </button>
+          </div>
+          <div className="p-5 space-y-4">
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Company Name <span className="text-blue-400">*</span></label>
+              <input value={form.name} onChange={e=>set('name',e.target.value)} placeholder="e.g. SunTech Solutions"
+                className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.name?'border-red-500/50':'border-slate-800')}/>
+              {errors.name && <p className="text-[10px] text-red-400 mt-1">{errors.name}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Owner Name <span className="text-blue-400">*</span></label>
+                <input value={form.owner} onChange={e=>set('owner',e.target.value)} placeholder="Full name"
+                  className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.owner?'border-red-500/50':'border-slate-800')}/>
+                {errors.owner && <p className="text-[10px] text-red-400 mt-1">{errors.owner}</p>}
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Email <span className="text-blue-400">*</span></label>
+                <input value={form.email} onChange={e=>set('email',e.target.value)} type="email" placeholder="vendor@company.in"
+                  className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.email?'border-red-500/50':'border-slate-800')}/>
+                {errors.email && <p className="text-[10px] text-red-400 mt-1">{errors.email}</p>}
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
+              <input value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+91 XXXXX XXXXX"
+                className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">City <span className="text-blue-400">*</span></label>
+                <input value={form.city} onChange={e=>set('city',e.target.value)} placeholder="e.g. Pune"
+                  className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.city?'border-red-500/50':'border-slate-800')}/>
+                {errors.city && <p className="text-[10px] text-red-400 mt-1">{errors.city}</p>}
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">State</label>
+                <select value={form.state} onChange={e=>set('state',e.target.value)}
+                  className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
+                  {STATES_LIST.map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Plan</label>
+                <select value={form.plan} onChange={e=>set('plan',e.target.value)}
+                  className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
+                  {PLANS_LIST.map(p=><option key={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Status</label>
+                <select value={form.status} onChange={e=>set('status',e.target.value)}
+                  className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
+                  {STATUS_LIST.map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Monthly Revenue (₹)</label>
+                <input value={form.monthlyRevenue} onChange={e=>set('monthlyRevenue',e.target.value)} type="number" min="0" placeholder="0"
+                  className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Capacity (kW)</label>
+                <input value={form.capacity} onChange={e=>set('capacity',e.target.value)} type="number" min="0" placeholder="0"
+                  className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
+              </div>
+            </div>
+            {form.name && (
+              <motion.div initial={{opacity:0,y:6}} animate={{opacity:1,y:0}}
+                className="bg-slate-900/60 border border-slate-700/50 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0" style={{background:`${VENDOR_COLORS[0]}20`,color:VENDOR_COLORS[0]}}>
+                  {form.name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()||'V'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-slate-200 truncate">{form.name}</p>
+                  <p className="text-[10px] text-slate-500">{form.owner||'Owner'} · {form.city||'City'}, {form.state} · {form.plan}</p>
+                </div>
+                <span className={cn('text-[9px] font-bold px-2 py-0.5 rounded-full border',
+                  form.status==='active'?'text-emerald-400 bg-emerald-500/10 border-emerald-500/20':
+                  form.status==='trial'?'text-yellow-400 bg-yellow-500/10 border-yellow-500/20':
+                  'text-red-400 bg-red-500/10 border-red-500/20')}>{form.status}</span>
+              </motion.div>
+            )}
+            <div className="flex gap-3 pt-1">
+              <button onClick={onClose} className="flex-1 py-3 rounded-2xl border border-slate-700 text-slate-400 text-sm font-bold hover:border-slate-600 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving}
+                className="flex-1 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                {saving
+                  ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> Saving...</>
+                  : <><CheckCircle className="w-4 h-4"/> {isEdit?'Update Vendor':'Add Vendor'}</> }
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ── DELETE CONFIRM MODAL ──────────────────────────────────────────────────────
+function DeleteConfirmModal({ vendor, onClose, onConfirm }) {
+  const [busy, setBusy] = useState(false);
+  const handleConfirm = async () => {
+    setBusy(true);
+    await new Promise(r=>setTimeout(r,500));
+    onConfirm(vendor.id);
+    onClose();
+  };
+  return (
+    <AnimatePresence>
+      <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[201] flex items-center justify-center p-4"
+        onClick={onClose}>
+        <motion.div initial={{scale:0.9}} animate={{scale:1}} exit={{scale:0.9}}
+          className="bg-[#0b1628] border border-red-500/30 rounded-3xl w-full max-w-sm p-6 shadow-2xl"
+          onClick={e=>e.stopPropagation()}>
+          <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-6 h-6 text-red-400"/>
+          </div>
+          <h3 className="font-bold text-center text-slate-100 mb-1">Remove Vendor?</h3>
+          <p className="text-xs text-center text-slate-500 mb-5">
+            <strong className="text-slate-300">{vendor?.name}</strong> will be permanently removed.
+          </p>
+          <div className="flex gap-3">
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-2xl border border-slate-700 text-slate-400 text-sm font-bold">Cancel</button>
+            <button onClick={handleConfirm} disabled={busy}
+              className="flex-1 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold disabled:opacity-60 flex items-center justify-center gap-2 transition-all">
+              {busy?<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/>:<Trash2 className="w-4 h-4"/>}
+              {busy?'Removing...':'Remove'}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 // ── VENDORS TAB ───────────────────────────────────────────────────────────────
 function VendorsTab() {
-  const [search, setSearch]   = useState('');
-  const [selected, setSelected] = useState(null);
-  const [filter, setFilter]   = useState('all');
+  const [vendors, setVendors]     = useState(loadVendors);
+  const [search, setSearch]       = useState('');
+  const [selected, setSelected]   = useState(null);
+  const [filter, setFilter]       = useState('all');
+  const [showAdd, setShowAdd]     = useState(false);
+  const [editVendor, setEditVendor] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, setToast]         = useState(null);
 
-  if (selected) return <VendorDetail vendor={selected} onBack={()=>setSelected(null)}/>;
+  const showToast = (msg, type='success') => {
+    setToast({msg,type});
+    setTimeout(()=>setToast(null),2800);
+  };
 
-  const filtered = VENDORS.filter(v=>{
-    const matchSearch = v.name.toLowerCase().includes(search.toLowerCase()) || v.owner.toLowerCase().includes(search.toLowerCase()) || v.city.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter==='all' || v.status===filter;
-    return matchSearch && matchFilter;
+  const handleSave = (vendor) => {
+    setVendors(prev => {
+      const exists = prev.find(v=>v.id===vendor.id);
+      const next = exists ? prev.map(v=>v.id===vendor.id?vendor:v) : [vendor,...prev];
+      saveVendors(next);
+      return next;
+    });
+    showToast(editVendor?`${vendor.name} updated ✓`:`${vendor.name} added ✓`);
+    setEditVendor(null);
+  };
+
+  const handleDelete = (id) => {
+    setVendors(prev=>{ const next=prev.filter(v=>v.id!==id); saveVendors(next); return next; });
+    showToast('Vendor removed','error');
+  };
+
+  const handleToggleSuspend = (vendor) => {
+    const updated = {...vendor, status: vendor.status==='suspended'?'active':'suspended'};
+    setVendors(prev=>{ const next=prev.map(v=>v.id===vendor.id?updated:v); saveVendors(next); return next; });
+    showToast(`${vendor.name} ${updated.status==='suspended'?'suspended':'reactivated'}`);
+  };
+
+  if (selected) {
+    const live = vendors.find(v=>v.id===selected.id)||selected;
+    return <VendorDetail vendor={live} onBack={()=>setSelected(null)}/>;
+  }
+
+  const filtered = vendors.filter(v=>{
+    const ms = v.name.toLowerCase().includes(search.toLowerCase())||
+      (v.owner||'').toLowerCase().includes(search.toLowerCase())||
+      (v.city||'').toLowerCase().includes(search.toLowerCase());
+    const mf = filter==='all'||v.status===filter;
+    return ms && mf;
   });
 
   return (
     <div className="space-y-5">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div initial={{opacity:0,y:-16}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-16}}
+            className={cn('fixed top-5 right-5 z-[300] flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm font-semibold shadow-xl',
+              toast.type==='error'
+                ?'bg-red-600/20 border-red-500/40 text-red-300'
+                :'bg-emerald-600/20 border-emerald-500/40 text-emerald-300')}>
+            {toast.type==='error'?<Trash2 className="w-4 h-4"/>:<CheckCircle className="w-4 h-4"/>}
+            {toast.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"/>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search vendors..."
             className="w-full bg-[#0b1628] border border-slate-800 rounded-2xl pl-9 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50"/>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {['all','active','trial','suspended'].map(f=>(
             <button key={f} onClick={()=>setFilter(f)}
               className={cn('px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all',
-                filter===f?'bg-blue-600 text-white':'bg-slate-800/60 text-slate-500 hover:text-slate-300')}>
-              {f}
-            </button>
+                filter===f?'bg-blue-600 text-white':'bg-slate-800/60 text-slate-500 hover:text-slate-300')}>{f}</button>
           ))}
         </div>
-        <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95">
+        <button onClick={()=>setShowAdd(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95 shadow-lg shadow-blue-600/20">
           <Plus className="w-4 h-4"/> Add Vendor
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {filtered.map((v,i)=>(
-          <motion.div key={v.id} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.06}}
-            className="bg-[#0b1628] border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition-all group">
-            <div className="flex items-start gap-4 mb-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-base flex-shrink-0"
-                style={{background:`${v.color}20`,color:v.color}}>{v.initials}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <h3 className="font-bold text-slate-100">{v.name}</h3>
-                  <Badge label={v.status.toUpperCase()} cls={STATUS_COLORS[v.status]}/>
-                  <Badge label={v.plan} cls={PLAN_COLORS[v.plan]}/>
-                </div>
-                <p className="text-xs text-slate-400">{v.owner}</p>
-                <p className="text-[10px] text-slate-600 flex items-center gap-1 mt-0.5"><MapPin className="w-2.5 h-2.5"/>{v.city}, {v.state}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-3 mb-4 text-center">
-              {[
-                {l:'Customers',v:v.customers,c:'text-blue-400'},
-                {l:'Plants',v:v.plants,c:'text-emerald-400'},
-                {l:'Capacity',v:`${v.capacity}kW`,c:'text-yellow-400'},
-                {l:'MRR',v:`₹${(v.monthlyRevenue/1000).toFixed(0)}K`,c:'text-purple-400'},
-              ].map(s=>(
-                <div key={s.l} className="bg-slate-900/50 rounded-xl py-2">
-                  <p className={cn('text-sm font-bold',s.c)}>{s.v}</p>
-                  <p className="text-[9px] text-slate-600">{s.l}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button onClick={()=>setSelected(v)}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-xs font-bold border border-blue-500/20 transition-all">
-                <Eye className="w-3.5 h-3.5"/> View Details
-              </button>
-              <button className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-400 text-xs font-bold border border-slate-700 transition-all">
-                <Download className="w-3.5 h-3.5"/>
-              </button>
-              <button className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20 transition-all">
-                <Ban className="w-3.5 h-3.5"/>
-              </button>
             </div>
           </motion.div>
         ))}
