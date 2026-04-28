@@ -270,14 +270,19 @@ function ConnectionForm({ brand, onTest, testing, onSave }) {
   );
 }
 
-function FormField({ label, children, required, tooltip }) {
+function FormField({ label, children, required, tooltip, id }) {
+  // Derive a stable id from label if not provided explicitly
+  const fieldId = id || `modbus-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+  // Clone child to inject the id
+  const child = React.Children.only(children);
+  const childWithId = React.cloneElement(child, { id: child.props.id || fieldId });
   return (
     <div>
-      <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+      <label htmlFor={fieldId} className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
         {label} {required && <span className="text-blue-400">*</span>}
         {tooltip && <span className="text-slate-600 font-normal normal-case tracking-normal ml-1">({tooltip})</span>}
       </label>
-      {children}
+      {childWithId}
     </div>
   );
 }

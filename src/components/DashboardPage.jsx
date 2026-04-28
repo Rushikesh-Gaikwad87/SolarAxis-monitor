@@ -92,7 +92,7 @@ export default function Dashboard() {
 
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-        {/* Generation Chart */}
+        {/* Generation Chart — explicit height to prevent Recharts width/height=-1 */}
         <div className="xl:col-span-2 bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
             <h3 className="font-bold text-base flex items-center gap-2">
@@ -103,8 +103,8 @@ export default function Dashboard() {
               <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-indigo-400 border-dashed inline-block" style={{borderTop:'2px dashed #818cf8'}}/>Forecast</span>
             </div>
           </div>
-          <div className="h-52 sm:h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ height: 240 }}>
+            <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={GEN_CHART_DATA} margin={{ top:0, right:0, bottom:0, left:-20 }}>
                 <defs>
                   <linearGradient id="gActual" x1="0" y1="0" x2="0" y2="1">
@@ -125,12 +125,12 @@ export default function Dashboard() {
 
         {/* Fleet Health + Donut */}
         <div className="bg-[#0b1628] border border-slate-800 rounded-2xl p-5 flex flex-col gap-5">
-          {/* Status Donut */}
+          {/* Status Donut — explicit dimensions on ResponsiveContainer */}
           <div>
             <p className="text-sm font-bold mb-3 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400"/>Fleet Status</p>
             <div className="flex items-center gap-4">
-              <div className="w-24 h-24 flex-shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="flex-shrink-0" style={{ width: 96, height: 96 }}>
+                <ResponsiveContainer width={96} height={96}>
                   <PieChart>
                     <Pie data={statusData} cx="50%" cy="50%" innerRadius={24} outerRadius={38} dataKey="value" startAngle={90} endAngle={-270} strokeWidth={0}>
                       {statusData.map((_, i) => <Cell key={i} fill={['#10b981','#64748b','#ef4444'][i]} />)}
@@ -191,11 +191,11 @@ export default function Dashboard() {
 
       {/* Monthly Bar + Recent Alerts + Top Plants */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Monthly Generation */}
+        {/* Monthly Bar — explicit height */}
         <div className="lg:col-span-2 bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
           <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-indigo-400"/>Monthly Generation (kWh)</h3>
-          <div className="h-44">
-            <ResponsiveContainer width="100%" height="100%">
+          <div style={{ height: 176 }}>
+            <ResponsiveContainer width="100%" height={176}>
               <BarChart data={MONTHLY_DATA} margin={{ top:0, right:0, bottom:0, left:-20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="month" stroke="#475569" fontSize={10} tickLine={false} axisLine={false}/>

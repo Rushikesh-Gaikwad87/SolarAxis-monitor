@@ -508,41 +508,41 @@ export default function CustomerPortal({ onLogout }) {
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 pb-20" style={{ filter: theme.filter || undefined }}>
       {/* ── TOP NAV ───────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#020617]/90 backdrop-blur-xl border-b border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Sun className="w-4 h-4 text-white" />
+      <header className="sticky top-0 z-30 bg-[#020617]/95 backdrop-blur-xl border-b border-slate-800/80">
+        <div className="max-w-5xl mx-auto px-4 sm:px-5 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/25">
+              <Sun className="w-3.5 h-3.5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-base tracking-tight">Solar<span className="text-blue-500">Axis</span></span>
-              <span className="ml-2 text-[10px] font-bold bg-green-500/15 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full">Customer Portal</span>
+              <span className="font-bold text-sm tracking-tight">Solar<span className="text-blue-400">Axis</span></span>
+              <span className="ml-2 text-[9px] font-bold bg-green-500/15 text-green-400 border border-green-500/20 px-1.5 py-0.5 rounded-full">Customer Portal</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowTheme(true)}
-              className="p-2 rounded-xl hover:bg-slate-800 text-slate-500 hover:text-slate-300 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-slate-300 transition-colors"
               title="Change Theme">
-              <Palette className="w-4 h-4" />
+              <Palette className="w-3.5 h-3.5" />
             </button>
             <button onClick={() => setUpgradeOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-lg shadow-blue-600/20 hover:opacity-90 transition-opacity">
-              <Sparkles className="w-3.5 h-3.5" /> Upgrade Plan
+              className="hidden sm:flex items-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-md shadow-blue-600/20 hover:opacity-90 transition-opacity">
+              <Sparkles className="w-3 h-3" /> Upgrade
             </button>
             <button onClick={onLogout}
-              className="p-2 rounded-xl hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-colors" title="Logout">
-              <LogOut className="w-4 h-4" />
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-red-400 transition-colors" title="Logout">
+              <LogOut className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Sub-nav */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex gap-1 pb-1 overflow-x-auto">
+        <div className="max-w-5xl mx-auto px-4 sm:px-5 flex gap-0.5 pb-1 overflow-x-auto">
           {SECTIONS.map(s => (
             <button key={s} onClick={() => setActiveSection(s)}
-              className={cn('px-4 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all whitespace-nowrap',
-                activeSection === s ? 'bg-blue-600/20 text-blue-400' : 'text-slate-600 hover:text-slate-300'
+              className={cn('px-3 py-1.5 rounded-lg text-[11px] font-semibold capitalize transition-all whitespace-nowrap',
+                activeSection === s ? 'bg-blue-600/15 text-blue-400' : 'text-slate-600 hover:text-slate-300'
               )}>
               {s}
             </button>
@@ -550,7 +550,7 @@ export default function CustomerPortal({ onLogout }) {
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 sm:px-5 pt-5 space-y-5">
         {/* ── HERO GREETING ─────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-3xl bg-gradient-to-br from-blue-600/20 to-indigo-600/10 border border-blue-500/20 p-6 relative overflow-hidden">

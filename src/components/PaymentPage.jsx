@@ -153,8 +153,8 @@ function CheckoutModal({ plan, method, onClose, onSuccess }) {
                 {/* UPI */}
                 {method?.id === 'upi' && (
                   <div className="space-y-3">
-                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block">UPI ID</label>
-                    <input value={upiId} onChange={e => setUpiId(e.target.value)}
+                    <label htmlFor="payment-upi-id" className="text-xs font-bold text-slate-600 uppercase tracking-wide block">UPI ID</label>
+                    <input id="payment-upi-id" value={upiId} onChange={e => setUpiId(e.target.value)}
                       placeholder="yourname@upi" type="text"
                       className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20" />
                     <div className="grid grid-cols-4 gap-2">
@@ -172,23 +172,23 @@ function CheckoutModal({ plan, method, onClose, onSuccess }) {
                 {(method?.id === 'card' || method?.id === 'razorpay') && (
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Card Number</label>
-                      <input value={card.num}
+                      <label htmlFor="payment-card-num" className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Card Number</label>
+                      <input id="payment-card-num" value={card.num}
                         onChange={e => setCard(p => ({ ...p, num: e.target.value.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim() }))}
                         placeholder="1234 5678 9012 3456" maxLength={19}
                         className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Expiry</label>
-                        <input value={card.exp}
+                        <label htmlFor="payment-card-exp" className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Expiry</label>
+                        <input id="payment-card-exp" value={card.exp}
                           onChange={e => setCard(p => ({...p, exp: e.target.value.replace(/\D/g,'').slice(0,4).replace(/(.{2})/,'$1/')}))}
                           placeholder="MM/YY" maxLength={5}
                           className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20" />
                       </div>
                       <div>
-                        <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">CVV</label>
-                        <input value={card.cvv} onChange={e => setCard(p=>({...p,cvv:e.target.value.slice(0,4)}))}
+                        <label htmlFor="payment-card-cvv" className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">CVV</label>
+                        <input id="payment-card-cvv" value={card.cvv} onChange={e => setCard(p=>({...p,cvv:e.target.value.slice(0,4)}))}
                           placeholder="•••" type="password" maxLength={4}
                           className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm font-mono text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20" />
                       </div>
@@ -202,7 +202,8 @@ function CheckoutModal({ plan, method, onClose, onSuccess }) {
                 {/* Net Banking */}
                 {method?.id === 'netbank' && (
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-2">Select Bank</label>
+                    {/* Changed from <label> to <p> — labels a button group, not a single input */}
+                    <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Select Bank</p>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         {id:'sbi',name:'SBI'},
@@ -225,7 +226,8 @@ function CheckoutModal({ plan, method, onClose, onSuccess }) {
                 {/* EMI */}
                 {method?.id === 'emi' && (
                   <div>
-                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-2">Select EMI Tenure</label>
+                    {/* Changed from <label> to <p> — labels a group of options, not a single focusable input */}
+                    <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Select EMI Tenure</p>
                     <div className="space-y-2">
                       {[
                         { months: 3,  monthly: Math.ceil(plan.price / 3)  },

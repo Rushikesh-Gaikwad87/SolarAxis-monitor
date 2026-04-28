@@ -150,10 +150,10 @@ export default function SystemConfigPage() {
               { label:'Address', k:'address', icon:MapPin },
             ].map(f => (
               <div key={f.k}>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">{f.label}</label>
+                <label htmlFor={`cfg-${f.k}`} className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">{f.label}</label>
                 <div className="relative">
                   <f.icon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
-                  <input value={cfg[f.k] || ''} onChange={e => set(f.k, e.target.value)}
+                  <input id={`cfg-${f.k}`} value={cfg[f.k] || ''} onChange={e => set(f.k, e.target.value)}
                     className="input-dark pl-9 text-sm"/>
                 </div>
               </div>
@@ -166,16 +166,16 @@ export default function SystemConfigPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Timezone</label>
-                <select value={cfg.timezone || 'Asia/Kolkata'} onChange={e => set('timezone', e.target.value)} className="input-dark text-sm">
+                <label htmlFor="cfg-timezone" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Timezone</label>
+                <select id="cfg-timezone" value={cfg.timezone || 'Asia/Kolkata'} onChange={e => set('timezone', e.target.value)} className="input-dark text-sm">
                   <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
                   <option value="UTC">UTC</option>
                   <option value="Asia/Dubai">Asia/Dubai (GST)</option>
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Language</label>
-                <select value={cfg.language || 'en'} onChange={e => set('language', e.target.value)} className="input-dark text-sm">
+                <label htmlFor="cfg-language" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Language</label>
+                <select id="cfg-language" value={cfg.language || 'en'} onChange={e => set('language', e.target.value)} className="input-dark text-sm">
                   <option value="en">English</option>
                   <option value="hi">Hindi</option>
                   <option value="gu">Gujarati</option>
@@ -184,14 +184,14 @@ export default function SystemConfigPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Currency</label>
-                <select value={cfg.currency || 'INR'} onChange={e => set('currency', e.target.value)} className="input-dark text-sm">
+                <label htmlFor="cfg-currency" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Currency</label>
+                <select id="cfg-currency" value={cfg.currency || 'INR'} onChange={e => set('currency', e.target.value)} className="input-dark text-sm">
                   <option>INR</option><option>USD</option><option>EUR</option>
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Tariff (₹/kWh)</label>
-                <input type="number" value={cfg.tariff || 7} onChange={e => set('tariff', +e.target.value)} className="input-dark text-sm"/>
+                <label htmlFor="cfg-tariff" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Tariff (₹/kWh)</label>
+                <input id="cfg-tariff" type="number" value={cfg.tariff || 7} onChange={e => set('tariff', +e.target.value)} className="input-dark text-sm"/>
               </div>
             </div>
           </div>
@@ -211,8 +211,8 @@ export default function SystemConfigPage() {
             </FieldRow>
             <div className="border-t border-slate-800 pt-4">
               <div>
-                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Alert Email Address</label>
-                <input value={cfg.email || ''} onChange={e => set('email', e.target.value)} className="input-dark text-sm" type="email"/>
+                <label htmlFor="cfg-alert-email" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">Alert Email Address</label>
+                <input id="cfg-alert-email" value={cfg.email || ''} onChange={e => set('email', e.target.value)} className="input-dark text-sm" type="email"/>
               </div>
             </div>
           </div>
@@ -252,9 +252,9 @@ export default function SystemConfigPage() {
         <Section title="API & Security" icon={Key} color="yellow">
           <div className="space-y-4">
             <div>
-              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">API Key</label>
+              <label htmlFor="cfg-api-key" className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">API Key</label>
               <div className="flex gap-2">
-                <input value={cfg.apiKey || ''} readOnly className="input-dark text-sm font-mono flex-1"/>
+                <input id="cfg-api-key" value={cfg.apiKey || ''} readOnly className="input-dark text-sm font-mono flex-1"/>
                 <button onClick={() => { try { navigator.clipboard.writeText(cfg.apiKey || ''); } catch {} }}
                   className="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs text-slate-400 font-bold transition-colors">
                   Copy

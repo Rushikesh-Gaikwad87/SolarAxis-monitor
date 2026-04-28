@@ -78,8 +78,9 @@ function OverviewTab() {
         {/* Vendor Revenue Bar */}
         <div className="lg:col-span-2 bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
           <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400"/>Vendor Monthly Revenue (₹)</h3>
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
+          {/* Vendor Revenue Bar — explicit height prevents -1 Recharts warning */}
+          <div style={{ height: 208 }}>
+            <ResponsiveContainer width="100%" height={208}>
               <BarChart data={revenueData} margin={{top:0,right:0,bottom:0,left:-10}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false}/>
                 <XAxis dataKey="name" stroke="#475569" fontSize={11} tickLine={false} axisLine={false}/>
@@ -97,8 +98,9 @@ function OverviewTab() {
         <div className="bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
           <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-blue-400"/>Fleet Status</h3>
           <div className="flex flex-col items-center gap-4">
-            <div className="w-36 h-36">
-              <ResponsiveContainer width="100%" height="100%">
+            {/* Fleet Status Donut — explicit pixel size */}
+            <div className="flex-shrink-0" style={{ width: 144, height: 144 }}>
+              <ResponsiveContainer width={144} height={144}>
                 <PieChart>
                   <Pie data={statusData} cx="50%" cy="50%" innerRadius={36} outerRadius={56} dataKey="value" strokeWidth={0}>
                     {statusData.map((d,i)=><Cell key={i} fill={d.fill}/>)}
@@ -134,8 +136,9 @@ function OverviewTab() {
       {/* Monthly Trend */}
       <div className="bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
         <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-emerald-400"/>Platform Generation Trend (kWh)</h3>
-        <div className="h-40">
-          <ResponsiveContainer width="100%" height="100%">
+        {/* Monthly Trend — explicit height */}
+        <div style={{ height: 160 }}>
+          <ResponsiveContainer width="100%" height={160}>
             <AreaChart data={MONTHLY_DATA} margin={{top:0,right:0,bottom:0,left:-20}}>
               <defs>
                 <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
@@ -401,40 +404,40 @@ function VendorFormModal({ initial, onClose, onSave }) {
           </div>
           <div className="p-5 space-y-4">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Company Name <span className="text-blue-400">*</span></label>
-              <input value={form.name} onChange={e=>set('name',e.target.value)} placeholder="e.g. SunTech Solutions"
+              <label htmlFor="vendor-name" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Company Name <span className="text-blue-400">*</span></label>
+              <input id="vendor-name" value={form.name} onChange={e=>set('name',e.target.value)} placeholder="e.g. SunTech Solutions"
                 className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.name?'border-red-500/50':'border-slate-800')}/>
               {errors.name && <p className="text-[10px] text-red-400 mt-1">{errors.name}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Owner Name <span className="text-blue-400">*</span></label>
-                <input value={form.owner} onChange={e=>set('owner',e.target.value)} placeholder="Full name"
+                <label htmlFor="vendor-owner" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Owner Name <span className="text-blue-400">*</span></label>
+                <input id="vendor-owner" value={form.owner} onChange={e=>set('owner',e.target.value)} placeholder="Full name"
                   className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.owner?'border-red-500/50':'border-slate-800')}/>
                 {errors.owner && <p className="text-[10px] text-red-400 mt-1">{errors.owner}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Email <span className="text-blue-400">*</span></label>
-                <input value={form.email} onChange={e=>set('email',e.target.value)} type="email" placeholder="vendor@company.in"
+                <label htmlFor="vendor-email" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Email <span className="text-blue-400">*</span></label>
+                <input id="vendor-email" value={form.email} onChange={e=>set('email',e.target.value)} type="email" placeholder="vendor@company.in"
                   className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.email?'border-red-500/50':'border-slate-800')}/>
                 {errors.email && <p className="text-[10px] text-red-400 mt-1">{errors.email}</p>}
               </div>
             </div>
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
-              <input value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+91 XXXXX XXXXX"
+              <label htmlFor="vendor-phone" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Phone</label>
+              <input id="vendor-phone" value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+91 XXXXX XXXXX"
                 className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">City <span className="text-blue-400">*</span></label>
-                <input value={form.city} onChange={e=>set('city',e.target.value)} placeholder="e.g. Pune"
+                <label htmlFor="vendor-city" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">City <span className="text-blue-400">*</span></label>
+                <input id="vendor-city" value={form.city} onChange={e=>set('city',e.target.value)} placeholder="e.g. Pune"
                   className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors', errors.city?'border-red-500/50':'border-slate-800')}/>
                 {errors.city && <p className="text-[10px] text-red-400 mt-1">{errors.city}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">State</label>
-                <select value={form.state} onChange={e=>set('state',e.target.value)}
+                <label htmlFor="vendor-state" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">State</label>
+                <select id="vendor-state" value={form.state} onChange={e=>set('state',e.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                   {STATES_LIST.map(s=><option key={s}>{s}</option>)}
                 </select>
@@ -442,15 +445,15 @@ function VendorFormModal({ initial, onClose, onSave }) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Plan</label>
-                <select value={form.plan} onChange={e=>set('plan',e.target.value)}
+                <label htmlFor="vendor-plan" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Plan</label>
+                <select id="vendor-plan" value={form.plan} onChange={e=>set('plan',e.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                   {PLANS_LIST.map(p=><option key={p}>{p}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Status</label>
-                <select value={form.status} onChange={e=>set('status',e.target.value)}
+                <label htmlFor="vendor-status" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Status</label>
+                <select id="vendor-status" value={form.status} onChange={e=>set('status',e.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                   {STATUS_LIST.map(s=><option key={s}>{s}</option>)}
                 </select>
@@ -458,13 +461,13 @@ function VendorFormModal({ initial, onClose, onSave }) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Monthly Revenue (₹)</label>
-                <input value={form.monthlyRevenue} onChange={e=>set('monthlyRevenue',e.target.value)} type="number" min="0" placeholder="0"
+                <label htmlFor="vendor-revenue" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Monthly Revenue (₹)</label>
+                <input id="vendor-revenue" value={form.monthlyRevenue} onChange={e=>set('monthlyRevenue',e.target.value)} type="number" min="0" placeholder="0"
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Capacity (kW)</label>
-                <input value={form.capacity} onChange={e=>set('capacity',e.target.value)} type="number" min="0" placeholder="0"
+                <label htmlFor="vendor-capacity" className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Capacity (kW)</label>
+                <input id="vendor-capacity" value={form.capacity} onChange={e=>set('capacity',e.target.value)} type="number" min="0" placeholder="0"
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"/>
               </div>
             </div>
@@ -857,8 +860,9 @@ function FinancialsTab() {
 
       <div className="bg-[#0b1628] border border-slate-800 rounded-2xl p-5">
         <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-emerald-400"/>Revenue by Vendor</h3>
-        <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
+        {/* Revenue by Vendor — explicit height */}
+        <div style={{ height: 208 }}>
+          <ResponsiveContainer width="100%" height={208}>
             <BarChart data={revenueData} margin={{top:0,right:0,bottom:0,left:-10}}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false}/>
               <XAxis dataKey="name" stroke="#475569" fontSize={11} tickLine={false} axisLine={false}/>

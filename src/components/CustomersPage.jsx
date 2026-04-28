@@ -175,13 +175,13 @@ export default function CustomersPage() {
                 {label:'City', type:'text', ph:'City, State'},
               ].map(f => (
                 <div key={f.label}>
-                  <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">{f.label}</label>
-                  <input type={f.type} placeholder={f.ph} className="input-dark"/>
+                  <label htmlFor={`cust-${f.label.toLowerCase().replace(/\s+/g,'-')}`} className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">{f.label}</label>
+                  <input id={`cust-${f.label.toLowerCase().replace(/\s+/g,'-')}`} type={f.type} placeholder={f.ph} className="input-dark"/>
                 </div>
               ))}
               <div>
-                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Tier</label>
-                <select className="input-dark">
+                <label htmlFor="cust-tier" className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1.5">Tier</label>
+                <select id="cust-tier" className="input-dark">
                   {['Basic','Standard','Premium','Enterprise'].map(t=><option key={t}>{t}</option>)}
                 </select>
               </div>

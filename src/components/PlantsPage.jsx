@@ -39,9 +39,9 @@ function PlantCard({ plant, onClick }) {
         </span>
       </div>
 
-      {/* Mini sparkline */}
-      <div className="h-14 mb-4">
-        <ResponsiveContainer width="100%" height="100%">
+      {/* Mini sparkline — explicit height on wrapper + ResponsiveContainer avoids -1 warning */}
+      <div className="mb-4" style={{ height: 56 }}>
+        <ResponsiveContainer width="100%" height={56}>
           <AreaChart data={PLANT_GEN.map((v,i)=>({t:i,v: plant.status==='online'?v*(plant.capacity/50):0}))} margin={{top:0,right:0,bottom:0,left:0}}>
             <defs><linearGradient id={`g${plant.id}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
@@ -213,10 +213,10 @@ function AddPlantModal({ onClose, onAdd }) {
 
             {/* Plant Name */}
             <div>
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+              <label htmlFor="plant-name" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
                 Plant Name <span className="text-blue-400">*</span>
               </label>
-              <input value={form.name} onChange={e=>set('name',e.target.value)}
+              <input id="plant-name" value={form.name} onChange={e=>set('name',e.target.value)}
                 type="text" placeholder="e.g. Sharma Farm – Rooftop"
                 className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors',
                   errors.name ? 'border-red-500/50' : 'border-slate-800')} />
@@ -225,8 +225,8 @@ function AddPlantModal({ onClose, onAdd }) {
 
             {/* Customer */}
             <div>
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Customer</label>
-              <select value={form.customer} onChange={e=>set('customer',e.target.value)}
+              <label htmlFor="plant-customer" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Customer</label>
+              <select id="plant-customer" value={form.customer} onChange={e=>set('customer',e.target.value)}
                 className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                 {CUSTOMERS.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                 <option value="Other">Other / New Customer</option>
@@ -235,10 +235,10 @@ function AddPlantModal({ onClose, onAdd }) {
 
             {/* Location */}
             <div>
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+              <label htmlFor="plant-location" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
                 Location <span className="text-blue-400">*</span>
               </label>
-              <input value={form.location} onChange={e=>set('location',e.target.value)}
+              <input id="plant-location" value={form.location} onChange={e=>set('location',e.target.value)}
                 type="text" placeholder="e.g. Pune, MH"
                 className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors',
                   errors.location ? 'border-red-500/50' : 'border-slate-800')} />
@@ -248,18 +248,18 @@ function AddPlantModal({ onClose, onAdd }) {
             {/* Capacity & Brand */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
+                <label htmlFor="plant-capacity" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">
                   Capacity (kW) <span className="text-blue-400">*</span>
                 </label>
-                <input value={form.capacity} onChange={e=>set('capacity',e.target.value)}
+                <input id="plant-capacity" value={form.capacity} onChange={e=>set('capacity',e.target.value)}
                   type="number" min="0.5" step="0.5" placeholder="e.g. 10"
                   className={cn('w-full bg-[#0f172a] border rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors',
                     errors.capacity ? 'border-red-500/50' : 'border-slate-800')} />
                 {errors.capacity && <p className="text-[10px] text-red-400 mt-1">{errors.capacity}</p>}
               </div>
               <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Inverter Brand</label>
-                <select value={form.brand} onChange={e=>set('brand',e.target.value)}
+                <label htmlFor="plant-brand" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Inverter Brand</label>
+                <select id="plant-brand" value={form.brand} onChange={e=>set('brand',e.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                   {INVERTER_BRANDS.map(b => <option key={b}>{b}</option>)}
                 </select>
@@ -269,14 +269,14 @@ function AddPlantModal({ onClose, onAdd }) {
             {/* Install Date & Status */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Install Date</label>
-                <input value={form.installDate} onChange={e=>set('installDate',e.target.value)}
+                <label htmlFor="plant-install-date" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Install Date</label>
+                <input id="plant-install-date" value={form.installDate} onChange={e=>set('installDate',e.target.value)}
                   type="date"
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors" />
               </div>
               <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Status</label>
-                <select value={form.status} onChange={e=>set('status',e.target.value)}
+                <label htmlFor="plant-status" className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Status</label>
+                <select id="plant-status" value={form.status} onChange={e=>set('status',e.target.value)}
                   className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-blue-500/50 transition-colors appearance-none">
                   <option value="online">Online</option>
                   <option value="offline">Offline</option>
