@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSupabaseAuth } from './hooks/useSupabaseAuth';
+import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Sun, Wifi, Users, AlertTriangle, Settings,
@@ -469,7 +470,6 @@ function ForgotPasswordModal({ onClose }) {
     setSending(true);
     try {
       // Try real Supabase password reset first
-      const { supabase } = await import('./lib/supabase');
       await supabase.auth.resetPasswordForEmail(contact, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -569,7 +569,6 @@ function RegisterModal({ role, onClose, onSuccess }) {
     if (!allValid) return;
     setSaving(true);
     try {
-      const { supabase } = await import('./lib/supabase');
       const { error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
@@ -753,7 +752,6 @@ function LoginScreen({ onLogin }) {
     setLoading(true);
     try {
       // ── Try real Supabase auth first ──────────────────────────────────────
-      const { supabase } = await import('./lib/supabase');
       const { data, error: authErr } = await supabase.auth.signInWithPassword({ email, password: pwd });
       if (!authErr && data?.user) {
         // Fetch profile to get role
@@ -982,7 +980,6 @@ export default function App() {
     let active = true;
     (async () => {
       try {
-        const { supabase } = await import('./lib/supabase');
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user && active) {
           const { data: prof } = await supabase
@@ -1017,7 +1014,6 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      const { supabase } = await import('./lib/supabase');
       await supabase.auth.signOut();
     } catch (_) {}
     setRole(null);
