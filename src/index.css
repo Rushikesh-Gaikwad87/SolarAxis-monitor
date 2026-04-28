@@ -6,6 +6,10 @@
   --bg-surface: #0f172a;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
+
+  /* Layout spacing tokens */
+  --sidebar-w: 15rem;
+  --header-h: 3.5rem;
 }
 
 body {
@@ -16,34 +20,21 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-h1,
-h2,
-h3,
-h4,
-.font-outfit {
+h1, h2, h3, h4, .font-outfit {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
+/* ── Custom Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-base);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
+/* ── AI Badge ────────────────────────────────────────────────────────────── */
 .ai-badge {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   -webkit-background-clip: text;
@@ -53,89 +44,69 @@ h4,
   letter-spacing: 0.1em;
 }
 
+/* ── Glow animation ──────────────────────────────────────────────────────── */
 @keyframes pulse-glow {
-  0% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
-  }
-
-  50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-  }
-
-  100% {
-    box-shadow: 0 0 5px rgba(178, 202, 240, 0.2);
-  }
+  0%   { box-shadow: 0 0 5px rgba(59,130,246,0.2); }
+  50%  { box-shadow: 0 0 20px rgba(59,130,246,0.4); }
+  100% { box-shadow: 0 0 5px rgba(178,202,240,0.2); }
 }
+.glow-primary { animation: pulse-glow 3s infinite; }
 
-.glow-primary {
-  animation: pulse-glow 3s infinite;
-}
-
-/* Modbus Form Input */
+/* ── Shared dark form input ──────────────────────────────────────────────── */
 .input-dark {
   width: 100%;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15,23,42,0.8);
   border: 1px solid #1e293b;
-  border-radius: 1rem;
-  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  padding: 0.625rem 0.875rem;
   font-size: 0.875rem;
   color: #f1f5f9;
   transition: all 0.2s;
   outline: none;
 }
-
 .input-dark:focus {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: rgba(59,130,246,0.5);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.12);
 }
+.input-dark::placeholder { color: #475569; }
 
-.input-dark::placeholder {
-  color: #475569;
-}
-
-/* ── Live Ticker Animation ─────────────────────────────────────────────── */
+/* ── Live Ticker ─────────────────────────────────────────────────────────── */
 @keyframes ticker {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
-
 .animate-ticker {
   animation: ticker 28s linear infinite;
   display: inline-flex;
 }
 
-/* ── Smooth theme color transition ──────────────────────────────────────── */
-* {
-  transition: background-color 0.35s ease, border-color 0.25s ease, color 0.2s ease;
+/* ── Smooth theme transitions ────────────────────────────────────────────── */
+* { transition: background-color 0.3s ease, border-color 0.2s ease, color 0.18s ease; }
+button, a, input, select { transition: all 0.15s ease; }
+
+/* ── iOS safe-area bottom nav ────────────────────────────────────────────── */
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ── Compact panel scrollbars ────────────────────────────────────────────── */
+.overflow-y-auto::-webkit-scrollbar { width: 3px; }
+.overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
+
+/* ── Glass card ──────────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(11,22,40,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30,41,59,0.8);
 }
 
-button,
-a,
-input,
-select {
-  transition: all 0.18s ease;
+/* ── Fade-in utility ─────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.fade-in { animation: fadeIn 0.2s ease forwards; }
 
-/* ── iOS safe area for bottom nav ──────────────────────────────────────── */
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* ── Compact scrollbars inside panels ──────────────────────────────────── */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
-}
-
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 8px;
-}
+/* ── Nav active glow ─────────────────────────────────────────────────────── */
+.nav-active-glow     { box-shadow: 0 4px 14px rgba(59,130,246,0.22); }
+.nav-active-glow-red { box-shadow: 0 4px 14px rgba(239,68,68,0.22); }

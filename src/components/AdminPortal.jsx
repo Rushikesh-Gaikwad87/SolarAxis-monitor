@@ -296,6 +296,9 @@ function VendorDetail({ vendor, onBack }) {
                       <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{width:`${p.performance}%`,background:p.performance>85?'#10b981':p.performance>50?'#f59e0b':'#ef4444'}}/>
                       </div>
+                      <span className="text-slate-400">{p.performance}%</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-2.5">
                     <span className={cn('px-2 py-0.5 rounded-full font-bold',
                       p.status==='online'?'bg-emerald-500/10 text-emerald-400':p.status==='offline'?'bg-slate-700 text-slate-400':'bg-red-500/10 text-red-400')}>
@@ -622,10 +625,84 @@ function VendorsTab() {
         </button>
       </div>
 
-            </div>
-          </motion.div>
-        ))}
+      {/* Summary */}
+      <div className="flex flex-wrap gap-4 text-xs text-slate-500 bg-[#0b1628] border border-slate-800 rounded-2xl px-4 py-3">
+        <span>Total: <strong className="text-slate-300">{vendors.length}</strong></span>
+        <span>Active: <strong className="text-emerald-400">{vendors.filter(v=>v.status==='active').length}</strong></span>
+        <span>Trial: <strong className="text-yellow-400">{vendors.filter(v=>v.status==='trial').length}</strong></span>
+        <span>Suspended: <strong className="text-red-400">{vendors.filter(v=>v.status==='suspended').length}</strong></span>
+        <span className="ml-auto text-[10px] text-emerald-600 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" /> Synced to localStorage
+        </span>
       </div>
+
+      {/* Vendor Grid */}
+      {filtered.length===0 ? (
+        <div className="text-center py-16 text-slate-600">
+          <Building2 className="w-10 h-10 mx-auto mb-3 opacity-30"/>
+          <p className="font-semibold">No vendors found</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filtered.map((v,i)=>(
+            <motion.div key={v.id} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.06}}
+              className={cn('bg-[#0b1628] border rounded-2xl p-5 hover:border-slate-700 transition-all',
+                v.status==='suspended'?'border-red-500/20 opacity-70':'border-slate-800')}>
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-base flex-shrink-0"
+                  style={{background:`${v.color}20`,color:v.color}}>{v.initials}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <h3 className="font-bold text-slate-100">{v.name}</h3>
+                    <Badge label={v.status.toUpperCase()} cls={STATUS_COLORS[v.status]}/>
+                    <Badge label={v.plan} cls={PLAN_COLORS[v.plan]}/>
+                  </div>
+                  <p className="text-xs text-slate-400">{v.owner}</p>
+                  <p className="text-[10px] text-slate-600 flex items-center gap-1 mt-0.5"><MapPin className="w-2.5 h-2.5"/>{v.city}, {v.state}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-3 mb-4 text-center">
+                {[
+                  {l:'Customers',val:v.customers||0,c:'text-blue-400'},
+                  {l:'Plants',val:v.plants||0,c:'text-emerald-400'},
+                  {l:'Capacity',val:`${v.capacity||0}kW`,c:'text-yellow-400'},
+                  {l:'MRR',val:`₹${((v.monthlyRevenue||0)/1000).toFixed(0)}K`,c:'text-purple-400'},
+                ].map(s=>(
+                  <div key={s.l} className="bg-slate-900/50 rounded-xl py-2">
+                    <p className={cn('text-sm font-bold',s.c)}>{s.val}</p>
+                    <p className="text-[9px] text-slate-600">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>setSelected(v)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-xs font-bold border border-blue-500/20 transition-all">
+                  <Eye className="w-3.5 h-3.5"/> View
+                </button>
+                <button onClick={()=>setEditVendor(v)} title="Edit"
+                  className="flex items-center justify-center px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/60 text-slate-400 text-xs font-bold border border-slate-700 transition-all">
+                  <Settings className="w-3.5 h-3.5"/>
+                </button>
+                <button onClick={()=>handleToggleSuspend(v)} title={v.status==='suspended'?'Reactivate':'Suspend'}
+                  className={cn('flex items-center justify-center px-3 py-2 rounded-xl text-xs font-bold border transition-all',
+                    v.status==='suspended'
+                      ?'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                      :'bg-yellow-500/5 hover:bg-yellow-500/10 text-yellow-400 border-yellow-500/20')}>
+                  <Ban className="w-3.5 h-3.5"/>
+                </button>
+                <button onClick={()=>setDeleteTarget(v)} title="Delete"
+                  className="flex items-center justify-center px-3 py-2 rounded-xl bg-red-500/5 hover:bg-red-500/10 text-red-400 text-xs font-bold border border-red-500/20 transition-all">
+                  <Trash2 className="w-3.5 h-3.5"/>
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {showAdd     && <VendorFormModal onClose={()=>setShowAdd(false)} onSave={handleSave}/>}
+      {editVendor  && <VendorFormModal initial={editVendor} onClose={()=>setEditVendor(null)} onSave={handleSave}/>}
+      {deleteTarget && <DeleteConfirmModal vendor={deleteTarget} onClose={()=>setDeleteTarget(null)} onConfirm={handleDelete}/>}
     </div>
   );
 }
@@ -880,51 +957,54 @@ export default function AdminPortal({ onLogout }) {
   return (
     <div className="flex h-screen text-slate-100 overflow-hidden" style={{background:'#020617', filter: theme.filter || undefined}}>
       {/* Sidebar */}
-      <div className="hidden lg:flex flex-col w-60 flex-shrink-0 bg-[#070d1e] border-r border-slate-800/80 p-5">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/25">
-            <ShieldCheck className="w-5 h-5 text-white"/>
+      <div className="hidden lg:flex flex-col w-56 flex-shrink-0 bg-[#070d1e] border-r border-slate-800/60 px-3 py-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 mb-6 px-1">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-md shadow-red-500/30">
+            <ShieldCheck className="w-4 h-4 text-white"/>
           </div>
           <div>
-            <span className="font-bold text-base tracking-tight">Solar<span className="text-red-400">Axis</span></span>
-            <p className="text-[9px] text-red-400 font-bold tracking-widest uppercase">Admin Console</p>
+            <span className="font-bold text-sm tracking-tight">Solar<span className="text-red-400">Axis</span></span>
+            <p className="text-[8px] text-red-400 font-bold tracking-widest uppercase leading-none">Admin Console</p>
           </div>
         </div>
 
         {/* Platform health pill */}
-        <div className="flex items-center gap-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl px-3 py-2 mb-6 text-xs">
+        <div className="flex items-center gap-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg px-2.5 py-1.5 mb-5 text-[11px]">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"/>
           <span className="text-emerald-400 font-semibold">All Systems Operational</span>
         </div>
 
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-0.5">
           {ADMIN_NAV.map(n=>(
             <button key={n.id} onClick={()=>setTab(n.id)}
-              className={cn('w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl transition-all text-sm group',
-                tab===n.id?'bg-red-600/90 text-white shadow-lg shadow-red-600/20':'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200')}>
-              <n.icon className={cn('w-[18px] h-[18px]',tab===n.id?'text-white':'text-slate-600 group-hover:text-red-400 transition-colors')}/>
+              className={cn('w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all text-[13px] group',
+                tab===n.id
+                  ? 'bg-red-600/90 text-white nav-active-glow-red'
+                  : 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200')}>
+              <n.icon className={cn('w-4 h-4 flex-shrink-0',tab===n.id?'text-white':'text-slate-600 group-hover:text-red-400 transition-colors')}/>
               <span className="font-medium">{n.label}</span>
             </button>
           ))}
         </nav>
 
         {/* Stats summary */}
-        <div className="mt-4 bg-slate-800/30 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-500 mb-4">
+        <div className="mt-3 bg-slate-800/25 border border-slate-800/60 rounded-xl p-3 space-y-1.5 text-[10px] text-slate-500 mb-3">
           <div className="flex justify-between"><span>Total Vendors</span><span className="font-bold text-slate-300">{VENDORS.length}</span></div>
           <div className="flex justify-between"><span>Total Customers</span><span className="font-bold text-slate-300">{CUSTOMERS.length}</span></div>
           <div className="flex justify-between"><span>Platform MRR</span><span className="font-bold text-emerald-400">₹{(VENDORS.reduce((s,v)=>s+v.monthlyRevenue,0)/1000).toFixed(0)}K</span></div>
         </div>
 
-        <div className="pt-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-red-500/5 border border-red-500/10 mb-3">
-            <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-300 font-bold text-sm">A</div>
+        <div className="pt-3 border-t border-slate-800/70">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-red-500/5 border border-red-500/10 mb-2">
+            <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center text-red-300 font-bold text-xs">A</div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-200">Super Admin</p>
-              <p className="text-[10px] text-slate-500">admin@solaraxis.io</p>
+              <p className="text-xs font-semibold text-slate-200 truncate">Super Admin</p>
+              <p className="text-[9px] text-slate-500 truncate">admin@solaraxis.io</p>
             </div>
           </div>
-          <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-semibold">
-            <LogOut className="w-4 h-4"/> Sign Out
+          <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors text-xs font-semibold">
+            <LogOut className="w-3.5 h-3.5"/> Sign Out
           </button>
         </div>
       </div>
@@ -932,28 +1012,28 @@ export default function AdminPortal({ onLogout }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Top header */}
-        <header className="hidden lg:flex items-center justify-between px-8 py-5 border-b border-slate-800/60 flex-shrink-0">
+        <header className="hidden lg:flex items-center justify-between px-5 py-3.5 border-b border-slate-800/60 flex-shrink-0">
           <div>
-            <h1 className="text-xl font-bold text-slate-100">{PAGE_TITLES[tab]}</h1>
-            <p className="text-xs text-slate-500 mt-0.5">SolarAxis Admin Console · Full Platform Access</p>
+            <h1 className="text-lg font-bold text-slate-100">{PAGE_TITLES[tab]}</h1>
+            <p className="text-[11px] text-slate-500 mt-0.5">SolarAxis Admin Console · Full Platform Access</p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold px-3 py-1.5 rounded-full">
-              <ShieldCheck className="w-3.5 h-3.5"/> ADMIN SESSION
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-bold px-2.5 py-1 rounded-full">
+              <ShieldCheck className="w-3 h-3"/> ADMIN SESSION
             </div>
-            <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-800 text-slate-400 text-xs px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-1.5 bg-slate-900/50 border border-slate-800 text-slate-400 text-[11px] px-2.5 py-1 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>Last sync: 1 min ago
             </div>
             {/* Theme Switcher button */}
             <button onClick={() => setShowTheme(true)}
-              className="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-600 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700 hover:border-slate-600 flex items-center justify-center transition-colors"
               title="Change Theme">
-              <Palette className="w-4 h-4 text-slate-400" />
+              <Palette className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-6">
           <AnimatePresence mode="wait">
             <motion.div key={tab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:0.15}}>
               {content[tab]}
